@@ -1,11 +1,10 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-// La función principal ahora debe ser 'async' para poder usar 'await' adentro.
-export function createClient() { 
-  // La función 'cookies()' es asíncrona, por lo que debemos esperar a que nos dé el almacén de cookies.
-  // ¡Este es el único cambio real que necesitas hacer!
-  const cookieStore = cookies()
+export function createClient() {
+  // El patrón correcto es llamar a la función cookies()
+  // dentro de cada uno de los métodos (get, set, remove)
+  // para asegurar que se usa el contexto de la petición actual.
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,9 +12,11 @@ export function createClient() {
     {
       cookies: {
         get(name: string) {
+          const cookieStore = cookies()
           return cookieStore.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
+          const cookieStore = cookies()
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
@@ -25,6 +26,7 @@ export function createClient() {
           }
         },
         remove(name: string, options: CookieOptions) {
+          const cookieStore = cookies()
           try {
             cookieStore.set({ name, value: '', ...options })
           } catch (error) {
