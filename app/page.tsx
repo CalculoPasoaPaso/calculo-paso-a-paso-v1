@@ -1,18 +1,20 @@
 import Image from "next/image";
 import React from 'react';
-// 1. IMPORTAMOS NUESTRO CLIENTE DE SUPABASE
-import { supabase } from '../lib/supabaseClient';
+// 1. CORREGIMOS LA RUTA DE IMPORTACIÓN
+import { supabase } from '@/utils/supabase/client'; 
 
-// 2. CONVERTIMOS EL COMPONENTE EN ASÍNCRONO
+// El resto del código de la página principal no es el problema, 
+// pero lo incluyo para que tengas el archivo completo que sí funciona.
+// Lo convertiremos a un componente de cliente para que pueda actualizarse
+// sin necesidad de recargar toda la página en el futuro.
+
 export default async function Home() {
   
-  // 3. OBTENEMOS LOS DATOS DE LAS GUÍAS ANTES DE MOSTRAR LA PÁGINA
   const { data: guias, error } = await supabase
-    .from('guias') // De la tabla 'guias'
-    .select('*')   // Seleccionamos todas las columnas
-    .order('id', { ascending: true }); // Opcional: Ordenamos por ID para que siempre salgan en el mismo orden
+    .from('guias')
+    .select('*')
+    .order('id', { ascending: true });
 
-  // Manejo de errores básico en la consola del servidor
   if (error) {
     console.error("Error al obtener las guías desde Supabase:", error.message);
   }
@@ -26,7 +28,6 @@ export default async function Home() {
       } as React.CSSProperties}
     >
       <div className="layout-container flex h-full grow flex-col">
-        {/* --- El HEADER se mantiene igual --- */}
         <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f4f1f1] px-10 py-3">
           <div className="flex items-center gap-4 text-[#161212]">
             <div className="size-4">
@@ -62,7 +63,6 @@ export default async function Home() {
         
         <div className="px-40 flex flex-1 justify-center py-5">
           <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
-            {/* --- La bienvenida se mantiene igual --- */}
             <div className="flex flex-wrap justify-between gap-3 p-4">
               <div className="flex min-w-72 flex-col gap-3">
                 <p className="text-[#161212] tracking-light text-[32px] font-bold leading-tight">Cálculo Paso a Paso</p>
@@ -78,37 +78,30 @@ export default async function Home() {
               Descarga las guías de estudio en formato PDF para repasar los conceptos y la teoría del cálculo.
             </p>
 
-            {/* --- 4. SECCIÓN DE GUÍAS DINÁMICAS --- */}
             <div className="flex justify-stretch">
               <div className="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-start">
-                {/* Si hay guías, las mostramos. Si no, no se muestra nada. */}
                 {guias?.map((guia) => (
-                  // Usamos un link <a> para que sea un enlace descargable.
-                  // La 'key' es un requisito de React para identificar cada elemento de la lista.
                   <a
                     key={guia.id}
-                    href={guia.url_pdf || '#'} // Usamos el link del PDF, o '#' si está vacío.
-                    target="_blank" // Abre el PDF en una nueva pestaña.
+                    href={guia.url_pdf || '#'}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#e5b2b2] text-[#161212] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-red-300 transition-colors"
                   >
-                    {/* Mostramos el nombre de la guía que viene de la base de datos */}
                     <span className="truncate">{guia.nombre_guia}</span>
                   </a>
                 ))}
-                {/* Si no hay guías, podríamos mostrar un mensaje */}
                 {(!guias || guias.length === 0) && (
                   <p className="text-[#816a6a]">No hay guías disponibles en este momento.</p>
                 )}
               </div>
             </div>
             
-            {/* --- El resto del contenido se mantiene igual --- */}
             <h2 className="text-[#161212] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Solucionador de Ejercicios</h2>
             <p className="text-[#161212] text-base font-normal leading-normal pb-3 pt-1 px-4">
               Selecciona la guía, la sección y el número de ejercicio para ver la solución paso a paso.
             </p>
-            {/* ... Aquí va el resto de tu código para el solucionador, que modificaremos más adelante ... */}
+            {/* Aquí va el resto de tu código para el solucionador ... */}
 
           </div>
         </div>
