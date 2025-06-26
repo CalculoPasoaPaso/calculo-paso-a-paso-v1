@@ -1,19 +1,19 @@
-'use client' // ¡Muy importante! Esto lo convierte en un componente de cliente.
+'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+// Eliminamos la importación de useRouter ya que no lo usaremos
+// import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  // Eliminamos la inicialización de useRouter
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    // Llamamos a nuestra nueva API de login
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
@@ -25,10 +25,10 @@ export default function LoginPage() {
     const data = await response.json()
 
     if (response.ok) {
-      // Si el login es exitoso, redirigimos al panel de admin
-      router.push('/admin')
+      // ESTA ES LA LÍNEA QUE CAMBIAMOS
+      // En lugar de router.push, usamos window.location.href para forzar una recarga completa.
+      window.location.href = '/admin';
     } else {
-      // Si hay un error, lo mostramos
       setError(data.message || 'Ocurrió un error inesperado.')
     }
   }
