@@ -2,8 +2,6 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-// 1. ESTA ES LA LÍNEA CORREGIDA: Se importa sin llaves {}
 import unpdf from 'unpdf';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -11,44 +9,36 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
 export async function uploadGuia(formData: FormData) {
   const supabase = createClient();
-  let newGuiaId: number | null = null;
-
+  
   try {
-    // --- PASOS 1 Y 2: Subir PDF y guardar en DB (no cambia) ---
     const nombreMateria = formData.get('nombre_materia') as string;
     const nombreGuia = formData.get('nombre_guia') as string;
     const pdfFile = formData.get('pdf_file') as File;
 
-    if (!pdfFile || pdfFile.size === 0) {
-      throw new Error('Por favor, selecciona un archivo PDF.');
-    }
+    if (!pdfFile || pdfFile.size === 0) throw new Error('Por favor, selecciona un archivo PDF.');
 
     const fileName = `${Date.now()}-${pdfFile.name}`;
     await supabase.storage.from('guias-pdf').upload(fileName, pdfFile);
-
     const { data: urlData } = supabase.storage.from('guias-pdf').getPublicUrl(fileName);
     const publicUrl = urlData.publicUrl;
 
+    // --- CORRECCIÓN DEL ERROR DE TIPEO ---
+    // Ahora usamos los nombres de variable correctos (nombreMateria, nombreGuia)
     const { data: guiaData, error: dbError } = await supabase
       .from('guias')
       .insert({ 
-          nombre_materia: nombreMateria,
-          nombre_guia: nombreGuia,
-          url_pdf: publicUrl 
+        nombre_materia: nombreMateria, 
+        nombre_guia: nombreGuia, 
+        url_pdf: publicUrl 
       })
       .select('id')
       .single();
-      
     if (dbError) throw dbError;
-    newGuiaId = guiaData.id;
-    if (!newGuiaId) throw new Error('No se pudo obtener el ID de la nueva guía.');
+    const newGuiaId = guiaData.id;
 
-    // --- PASO 3: MAGIA DE LA IA (ahora con 'unpdf') ---
     const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
-    
-    // 2. Usamos 'unpdf' para extraer el texto. Esto no cambia.
     const { text: pdfText } = await unpdf(pdfBuffer);
-
+    
     const prompt = `
       Eres un asistente experto en analizar material académico de cálculo y física.
       A partir del siguiente texto de una guía de ejercicios, extrae TODOS los ejercicios que encuentres.
@@ -70,43 +60,57 @@ export async function uploadGuia(formData: FormData) {
       ${pdfText}
       ---
     `;
-
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    let jsonResponseString = response.text();
+    let jsonResponseString = response.text().replace(/^```json\n/, '').replace(/\n```$/, '');
 
-    jsonResponseString = jsonResponseString.replace(/^```json\n/, '').replace(/\n```$/, '');
-    
-    // --- PASO 4: Guardar los ejercicios extraídos (no cambia) ---
-    try {
-      const ejercicios = JSON.parse(jsonResponseString);
+    // =================================================================
+    // INICIO DE LA SECCIÓN DE DEPURACIÓN
+    // =================================================================
 
-      if (Array.isArray(ejercicios)) {
-        const ejerciciosParaInsertar = ejercicios.map(ej => ({
-          guia_id: newGuiaId,
-          seccion: ej.seccion || 'General',
-          enunciado: ej.enunciado,
-          numero_ejercicio: ej.enunciado.split('.')[0]?.trim() || 'N/A'
-        }));
+    // ESPÍA #1: Mostramos la respuesta EXACTA que nos da la IA.
+    console.log("===== RESPUESTA CRUDA DE LA IA =====");
+    console.log(jsonResponseString);
+    console.log("====================================");
 
-        const { error: insertEjerciciosError } = await supabase
-          .from('ejercicios')
-          .insert(ejerciciosParaInsertar);
+    const ejercicios = JSON.parse(jsonResponseString);
 
-        if (insertEjerciciosError) throw insertEjerciciosError;
+    if (Array.isArray(ejercicios) && ejercicios.length > 0) {
+      const ejerciciosParaInsertar = ejercicios.map(ej => ({
+        guia_id: newGuiaId,
+        seccion: ej.seccion || 'General',
+        enunciado: ej.enunciado,
+        numero_ejercicio: ej.enunciado?.split('.')[0]?.trim() || 'N/A'
+      }));
+
+      // ESPÍA #2: Mostramos los datos que estamos a punto de insertar en la base de datos.
+      console.log("===== DATOS A INSERTAR EN LA TABLA 'ejercicios' =====");
+      console.log(JSON.stringify(ejerciciosParaInsertar, null, 2));
+      console.log("======================================================");
+
+      const { error: insertEjerciciosError } = await supabase.from('ejercicios').insert(ejerciciosParaInsertar);
+
+      if (insertEjerciciosError) {
+        // ESPÍA #3: Si hay un error al insertar, lo mostramos.
+        console.error("===== ERROR AL INSERTAR EN SUPABASE =====");
+        console.error(insertEjerciciosError);
+        console.error("=======================================");
+        throw insertEjerciciosError;
       }
-    } catch (parseError) {
-      console.error("Error al parsear el JSON de la IA. Respuesta cruda:", jsonResponseString);
-      return redirect('/admin?message=Guía subida, pero falló la extracción de ejercicios.');
+    } else {
+      console.log("La IA no devolvió un array de ejercicios o el array estaba vacío.");
     }
+    
+    // =================================================================
+    // FIN DE LA SECCIÓN DE DEPURACIÓN
+    // =================================================================
 
-    // --- PASO 5: Éxito total (no cambia) ---
     revalidatePath('/');
-    return redirect('/admin?message=Guía subida y ejercicios extraídos con éxito!');
+    return { success: true, message: '¡Guía subida y ejercicios extraídos con éxito!' };
 
   } catch (error: any) {
     console.error("Error completo en uploadGuia:", error);
-    return redirect(`/admin?message=Error: ${error.message}`);
+    return { success: false, message: `Error: ${error.message}` };
   }
 }
