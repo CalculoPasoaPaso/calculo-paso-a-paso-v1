@@ -3,22 +3,18 @@
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-// Eliminamos el import estático de aquí
-// import pdf from 'pdf-parse'; 
+// 1. ESTA ES LA LÍNEA CORREGIDA: Se importa sin llaves {}
+import unpdf from 'unpdf';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
 export async function uploadGuia(formData: FormData) {
-  // --- AÑADIMOS UN IMPORT DINÁMICO DENTRO DE LA FUNCIÓN ---
-  // Esto asegura que el módulo solo se carga en el entorno de servidor cuando se necesita.
-  const pdf = (await import('pdf-parse')).default;
-
   const supabase = createClient();
   let newGuiaId: number | null = null;
 
   try {
-    // --- PASOS 1 Y 2: Subir PDF y guardar en DB (esto no cambia) ---
+    // --- PASOS 1 Y 2: Subir PDF y guardar en DB (no cambia) ---
     const nombreMateria = formData.get('nombre_materia') as string;
     const nombreGuia = formData.get('nombre_guia') as string;
     const pdfFile = formData.get('pdf_file') as File;
@@ -47,10 +43,11 @@ export async function uploadGuia(formData: FormData) {
     newGuiaId = guiaData.id;
     if (!newGuiaId) throw new Error('No se pudo obtener el ID de la nueva guía.');
 
-    // --- PASO 3: MAGIA DE LA IA con GOOGLE GEMINI ---
+    // --- PASO 3: MAGIA DE LA IA (ahora con 'unpdf') ---
     const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
-    const pdfData = await pdf(pdfBuffer);
-    const pdfText = pdfData.text;
+    
+    // 2. Usamos 'unpdf' para extraer el texto. Esto no cambia.
+    const { text: pdfText } = await unpdf(pdfBuffer);
 
     const prompt = `
       Eres un asistente experto en analizar material académico de cálculo y física.
@@ -81,7 +78,7 @@ export async function uploadGuia(formData: FormData) {
 
     jsonResponseString = jsonResponseString.replace(/^```json\n/, '').replace(/\n```$/, '');
     
-    // --- PASO 4: Guardar los ejercicios extraídos (esto no cambia) ---
+    // --- PASO 4: Guardar los ejercicios extraídos (no cambia) ---
     try {
       const ejercicios = JSON.parse(jsonResponseString);
 
@@ -104,7 +101,7 @@ export async function uploadGuia(formData: FormData) {
       return redirect('/admin?message=Guía subida, pero falló la extracción de ejercicios.');
     }
 
-    // --- PASO 5: Éxito total (esto no cambia) ---
+    // --- PASO 5: Éxito total (no cambia) ---
     revalidatePath('/');
     return redirect('/admin?message=Guía subida y ejercicios extraídos con éxito!');
 
