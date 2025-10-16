@@ -2,7 +2,7 @@ import React from 'react';
 // 1. IMPORTAMOS LA FUNCIÓN 'createClient' DESDE EL ARCHIVO DEL SERVIDOR (¡Buena práctica!)
 import { createClient } from '@/utils/supabase/server'; 
 
-import { ThemeSwitcher } from './components/theme-switcher';
+import { ThemeSwitcher } from './theme-switcher';
 export default async function Home() {
   
   // 2. LLAMAMOS A LA FUNCIÓN PARA OBTENER NUESTRA INSTANCIA DE SUPABASE
