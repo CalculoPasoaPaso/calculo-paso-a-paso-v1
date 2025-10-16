@@ -1,6 +1,5 @@
-import Image from "next/image";
 import React from 'react';
-// 1. IMPORTAMOS LA FUNCIÓN 'createClient' DESDE EL ARCHIVO DEL SERVIDOR
+// 1. IMPORTAMOS LA FUNCIÓN 'createClient' DESDE EL ARCHIVO DEL SERVIDOR (¡Buena práctica!)
 import { createClient } from '@/utils/supabase/server'; 
 
 export default async function Home() {
@@ -18,77 +17,98 @@ export default async function Home() {
   }
 
   return (
-    <div
-      className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden"
-      style={{
-        '--select-button-svg': "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(129,106,106)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e')",
-        fontFamily: '"Public Sans", "Noto Sans", sans-serif',
-      } as React.CSSProperties}
-    >
-      <div className="layout-container flex h-full grow flex-col">
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f4f1f1] px-10 py-3">
-          <div className="flex items-center gap-4 text-[#161212]">
-            <div className="size-4">
+    <div className="flex min-h-screen w-full flex-col bg-slate-50 font-sans text-slate-800">
+      {/* Header */}
+      <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/80 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3">
+            <div className="flex size-6 items-center justify-center rounded-md bg-slate-800 text-white">
               <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fillRule="evenodd" clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="currentColor"></path>
               </svg>
             </div>
-            <h2 className="text-[#161212] text-lg font-bold leading-tight tracking-[-0.015em]">Cálculo Paso a Paso</h2>
+            <h1 className="text-lg font-bold tracking-tight">Cálculo Paso a Paso</h1>
+          </a>
+        </div>
+        <div className="flex items-center gap-4">
+          <a className="text-sm font-medium text-slate-600 hover:text-slate-900" href="/admin">
+            Panel Admin
+          </a>
+          <div className="relative flex size-9 items-center justify-center rounded-full bg-slate-200 text-slate-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
           </div>
-          <div className="flex flex-1 justify-end gap-8">
-            <a className="text-[#161212] text-sm font-medium leading-normal" href="/admin">Panel Admin</a>
-            <div
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDWREe4cel8YALu_uFVB5P6TufyqLWimZC3BSc_cYejM0ZPg1hhiIUSO5LYr4HlEksh-Iw4jEXzbdeweKFH-s0F4IJk3ZGiS9Nhz0ZUVOzL0UUzYk1h2WFDpTgHvc8BU49TJ64Y7pMAPdpwLBzcV5uW_twDJfX5MMmBoVHLaB0QfpSR5_wi7nmF8sSpD_hBOxwUrMQ_qwj0FOomHzf_0fnSQFVkQSEyguuRiiorETaclHERRe3_5R4tCrHUhET-dnjWuzv9oMuxrk0")' }}
-            ></div>
-          </div>
-        </header>
-        
-        <div className="px-10 md:px-40 flex flex-1 justify-center py-5">
-          <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
-            <div className="flex flex-wrap justify-between gap-3 p-4">
-              <div className="flex min-w-72 flex-col gap-3">
-                <p className="text-[#161212] tracking-light text-[32px] font-bold leading-tight">Cálculo Paso a Paso</p>
-                <p className="text-[#816a6a] text-sm font-normal leading-normal">
-                  Bienvenido a la página web de Cálculo Paso a Paso de la Facultad Multidisciplinaria del Oeste de la UES. Aquí encontrarás guías de estudio, soluciones de
-                  ejercicios e integración con Wolfram Alpha para ayudarte con tus estudios de cálculo.
-                </p>
-              </div>
-            </div>
+        </div>
+      </header>
 
-            <h2 className="text-[#161212] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Guías de Estudio</h2>
-            <p className="text-[#161212] text-base font-normal leading-normal pb-3 pt-1 px-4">
-              Descarga las guías de estudio en formato PDF para repasar los conceptos y la teoría del cálculo.
+      {/* Main Content */}
+      <main className="flex flex-1 flex-col">
+        <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+          {/* Hero Section */}
+          <section className="mb-12 rounded-lg border border-slate-200 bg-white p-6 text-center shadow-sm">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Recursos de Cálculo
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600">
+              Bienvenido al portal de la Facultad Multidisciplinaria de Occidente (UES). Aquí encontrarás guías de estudio, soluciones de ejercicios e integración con Wolfram Alpha para potenciar tu aprendizaje.
             </p>
+          </section>
 
-            <div className="flex justify-stretch">
-              <div className="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-start">
-                {guias?.map((guia) => (
+          {/* Study Guides Section */}
+          <section className="mb-12">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold tracking-tight text-slate-900">Guías de Estudio</h3>
+              <p className="mt-1 text-slate-600">
+                Descarga las guías en formato PDF para repasar los conceptos y la teoría del cálculo.
+              </p>
+            </div>
+            
+            {guias && guias.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {guias.map((guia) => (
                   <a
                     key={guia.id}
                     href={guia.url_pdf || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#e5b2b2] text-[#161212] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-red-300 transition-colors"
+                    className="group flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-blue-500 hover:shadow-md"
                   >
-                    <span className="truncate">{guia.nombre_guia}</span>
+                    <div className="flex size-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" x2="8" y1="13" y2="13" />
+                        <line x1="16" x2="8" y1="17" y2="17" />
+                        <line x1="10" x2="8" y1="9" y2="9" />
+                      </svg>
+                    </div>
+                    <span className="truncate font-medium text-slate-700 group-hover:text-blue-600">{guia.nombre_guia}</span>
                   </a>
                 ))}
-                {(!guias || guias.length === 0) && (
-                  <p className="text-[#816a6a]">No hay guías disponibles en este momento.</p>
-                )}
               </div>
-            </div>
-            
-            <h2 className="text-[#161212] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Solucionador de Ejercicios</h2>
-            <p className="text-[#161212] text-base font-normal leading-normal pb-3 pt-1 px-4">
-              Selecciona la guía, la sección y el número de ejercicio para ver la solución paso a paso.
-            </p>
+            ) : (
+              <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-slate-200 bg-white p-12 text-center">
+                <p className="text-slate-500">No hay guías disponibles en este momento.</p>
+              </div>
+            )}
+          </section>
 
-          </div>
+          {/* Exercise Solver Section */}
+          <section>
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold tracking-tight text-slate-900">Solucionador de Ejercicios</h3>
+              <p className="mt-1 text-slate-600">
+                Selecciona la guía, la sección y el número de ejercicio para ver la solución paso a paso.
+              </p>
+            </div>
+            <div className="rounded-lg border-2 border-dashed border-slate-200 bg-white p-12 text-center">
+              <p className="text-slate-500">El solucionador estará disponible próximamente.</p>
+            </div>
+          </section>
         </div>
       </div>
     </div>
   );
 }
-

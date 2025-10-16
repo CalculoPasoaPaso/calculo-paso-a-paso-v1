@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans, Public_Sans } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
+const noto_sans = Noto_Sans({ subsets: ["latin"], weight: ['400', '500', '700', '900'], variable: '--font-noto-sans' });
+const public_sans = Public_Sans({ subsets: ["latin"], weight: ['400', '500', '700', '900'], variable: '--font-public-sans' });
+
+
 
 export const metadata: Metadata = {
   title: "Cálculo Paso a Paso", // Puedes cambiar el título aquí
@@ -16,15 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es"> {/* Cambiado a español */}
-      <head>
-        {/* Aquí es el lugar correcto para los links de fuentes */}
-        <link rel="preconnect" href="https://fonts.gstatic.com" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900"
-        />
-      </head>
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} ${noto_sans.variable} ${public_sans.variable}`}>{children}</body>
     </html>
   );
 }
