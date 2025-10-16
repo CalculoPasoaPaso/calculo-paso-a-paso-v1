@@ -2,12 +2,11 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
-import pdf from 'pdf-parse'; // Ahora la importación funcionará gracias al archivo de tipos
+import pdf from 'pdf-parse';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!); 
 
-// Esta función ahora está diseñada para ser llamada desde un componente de cliente.
 export async function uploadGuiaAction(formData: FormData): Promise<{ success: boolean; message: string }> {
   const supabase = createClient();
   

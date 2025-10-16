@@ -1,25 +1,24 @@
-'use client'; // ¡Lo convertimos en un componente de cliente!
+'use client';
 
 import { useState, useTransition, FormEvent } from 'react';
-import { uploadGuiaAction } from './actions'; // Importamos nuestra Server Action
+import { uploadGuiaAction } from './actions';
 
 export default function AdminPage() {
   const [message, setMessage] = useState('');
   const [isPending, startTransition] = useTransition();
 
-  // Esta función se ejecutará cuando el usuario envíe el formulario.
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     
-    setMessage(''); // Limpiamos mensajes anteriores
+    setMessage('');
 
     startTransition(async () => {
       const result = await uploadGuiaAction(formData);
-      setMessage(result.message); // Mostramos el mensaje de éxito o error
+      setMessage(result.message);
       
       if (result.success) {
-        (event.target as HTMLFormElement).reset(); // Limpiamos el formulario si todo fue bien
+        (event.target as HTMLFormElement).reset();
       }
     });
   };
@@ -28,11 +27,9 @@ export default function AdminPage() {
     <main className="flex min-h-screen flex-col items-center p-24 bg-gray-50">
       <h1 className="text-4xl font-bold mb-8">Panel de Administrador</h1>
       
-      {/* El formulario ahora llama a nuestra función handleSubmit */}
       <form onSubmit={handleSubmit} className="w-full max-w-lg p-8 bg-white rounded-lg shadow-xl">
         <h2 className="text-2xl font-semibold text-center mb-6">Subir Nueva Guía</h2>
         
-        {/* Los campos no cambian */}
         <div className="mb-4">
           <label htmlFor="nombre_materia" className="block text-gray-700 text-sm font-bold mb-2">Nombre de la Materia</label>
           <input type="text" name="nombre_materia" id="nombre_materia" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
@@ -46,7 +43,6 @@ export default function AdminPage() {
           <input type="file" name="pdf_file" id="pdf_file" required accept=".pdf" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
         </div>
 
-        {/* Mostramos el mensaje de estado */}
         {message && (
           <p className={`text-center mb-4 ${message.startsWith('Error') ? 'text-red-500' : 'text-green-500'}`}>
             {message}
