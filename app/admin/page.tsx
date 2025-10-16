@@ -31,7 +31,7 @@ export default function AdminPage() {
         <h2 className="text-2xl font-semibold text-center mb-6">Subir Nueva Guía</h2>
         
         <div className="mb-4">
-          <label htmlFor="nombre_materia" className="block text-gray-700 text-sm font-bold mb-2">Nombre de la Materia</label>
+          <label htmlFor="nombre_materia" className="block text-gray-700 text-sm font-bold mb-2">Nombre de la Materiaaaaaa</label>
           <input type="text" name="nombre_materia" id="nombre_materia" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
